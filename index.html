@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Modern Invoice Creator (With Logo + Save Template)</title>
+  <title>Modern Invoice Creator (With Logo + Download/Use Template)</title>
   <!-- Optional: Include a Google Font for a modern look -->
   <link
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
@@ -18,7 +18,6 @@
       padding: 0;
       background: #f2f2f2;
     }
-
     .container {
       max-width: 1200px;
       margin: 20px auto;
@@ -27,16 +26,13 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       padding: 20px;
     }
-
     h1, h2, h3 {
       margin-top: 0;
       font-weight: 400;
     }
-
     .section {
       margin-bottom: 30px;
     }
-
     /* FORM SECTION */
     .form-section {
       display: flex;
@@ -65,7 +61,6 @@
       resize: vertical;
       min-height: 60px;
     }
-
     /* ITEMS TABLE IN FORM */
     #itemsFormTable {
       width: 100%;
@@ -79,7 +74,6 @@
     #itemsFormTable th {
       background: #f7f7f7;
     }
-
     /* BUTTONS */
     .btn {
       display: inline-block;
@@ -111,7 +105,6 @@
       background: #9c27b0;
       color: #fff;
     }
-
     /* INVOICE PREVIEW */
     .invoice-preview {
       width: 800px; /* fixed width for consistent PDF rendering */
@@ -121,22 +114,20 @@
       padding: 20px;
       border: 1px solid #ccc;
     }
-
     .invoice-preview-header {
       display: flex;
       justify-content: space-between;
       margin-bottom: 20px;
     }
-
     /* Left column: Logo & From address */
     .invoice-preview-header-left {
       text-align: left;
-      margin-right: 10px; /* Optional spacing */
+      margin-right: 10px;
     }
     .invoice-logo img {
       max-width: 150px;
       max-height: 80px;
-      object-fit: contain; /* keeps aspect ratio */
+      object-fit: contain;
       display: block;
       margin-bottom: 10px;
     }
@@ -144,7 +135,6 @@
       font-weight: 500;
       margin-bottom: 5px;
     }
-
     /* Right column: Invoice #, date, etc. */
     .invoice-preview-header-right {
       text-align: right;
@@ -153,7 +143,6 @@
       font-size: 24px;
       margin-bottom: 10px;
     }
-
     /* PREVIEW TABLE */
     .preview-items-table {
       width: 100%;
@@ -171,7 +160,6 @@
     .preview-items-table td:last-child {
       text-align: right;
     }
-
     .preview-summary {
       margin-top: 20px;
       text-align: right;
@@ -179,7 +167,6 @@
     .preview-summary div {
       margin: 5px 0;
     }
-
     /* FOOTER */
     .footer {
       text-align: center;
@@ -187,7 +174,6 @@
       color: #aaa;
       margin-top: 30px;
     }
-
     /* Hide the "Download PDF" button from the PDF itself */
     @media print {
       .btn, .section-title {
@@ -205,7 +191,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>Modern Invoice Creator (With Logo + Save Template)</h1>
+    <h1>Modern Invoice Creator (With Logo + Download/Use Template)</h1>
 
     <!-- ========== FORM SECTION ========== -->
     <div class="section">
@@ -306,9 +292,12 @@
       <button class="btn btn-update" onclick="updatePreview()">Update Preview</button>
       <button class="btn btn-download" onclick="downloadPDF()">Download PDF</button>
       <!-- NEW: Template Buttons -->
-      <button class="btn btn-template" onclick="saveAsTemplate()">Save as Template</button>
-      <button class="btn btn-template" onclick="loadTemplate()">Load Template</button>
+      <button class="btn btn-template" onclick="downloadTemplate()">Download Template</button>
+      <button class="btn btn-template" onclick="uploadTemplate()">Use Template</button>
     </div>
+
+    <!-- Hidden file input for uploading a template -->
+    <input type="file" id="templateFileInput" accept=".json" style="display: none;" onchange="handleTemplateFile(this.files)" />
 
     <!-- ========== INVOICE PREVIEW SECTION ========== -->
     <div class="section">
@@ -323,14 +312,12 @@
             <div class="preview-from-name" id="previewFromName"></div>
             <div id="previewFromAddress"></div>
           </div>
-
           <div class="invoice-preview-header-right">
             <div class="preview-title">INVOICE</div>
             <div><strong>Invoice #:</strong> <span id="previewInvoiceNumber"></span></div>
             <div><strong>Date:</strong> <span id="previewInvoiceDate"></span></div>
           </div>
         </div>
-
         <!-- BILL/SHIP INFO -->
         <div class="invoice-preview-header" style="margin-bottom: 0;">
           <div>
@@ -342,7 +329,6 @@
             <div id="previewShipTo"></div>
           </div>
         </div>
-
         <div class="invoice-preview-header">
           <div>
             <strong>Payment Terms:</strong> <span id="previewPaymentTerms"></span>
@@ -351,7 +337,6 @@
             <strong>Due Date:</strong> <span id="previewDueDate"></span>
           </div>
         </div>
-
         <!-- ITEMS TABLE -->
         <table class="preview-items-table">
           <thead>
@@ -364,7 +349,6 @@
           </thead>
           <tbody id="previewItemsTbody"></tbody>
         </table>
-
         <!-- SUMMARY -->
         <div class="preview-summary">
           <div>Subtotal: <span id="previewSubtotal">0.00</span></div>
@@ -374,7 +358,6 @@
           <div>Amount Paid: <span id="previewAmountPaid">0.00</span></div>
           <div><strong>Balance Due: <span id="previewBalanceDue">0.00</span></strong></div>
         </div>
-
         <!-- NOTES / TERMS -->
         <div style="margin-top: 30px;">
           <strong>Notes:</strong>
@@ -440,7 +423,6 @@
       items.forEach((item, index) => {
         const row = document.createElement('tr');
         const lineTotal = (item.quantity * item.price).toFixed(2);
-
         row.innerHTML = `
           <td>
             <input type="text" value="${item.description}" 
@@ -539,31 +521,24 @@
     async function downloadPDF() {
       // Force an update in case the user didn't click "Update Preview" 
       updatePreview();
-
       const invoicePreview = document.getElementById('invoicePreview');
       const { jsPDF } = window.jspdf;
-
       // Convert invoice preview to canvas
       const canvas = await html2canvas(invoicePreview, { scale: 2 });
       const imgData = canvas.toDataURL('image/png');
-
       // Create PDF
       const pdf = new jsPDF('p', 'pt', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-
       // Calculate image dimensions to fit PDF
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pdfWidth;
       const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
       let heightLeft = imgHeight;
       let position = 0;
-
       // Add initial page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
       heightLeft -= pdfHeight;
-
       // If the content is longer than one page, add more pages
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
@@ -571,13 +546,12 @@
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
         heightLeft -= pdfHeight;
       }
-
       // Download the PDF
       pdf.save('invoice.pdf');
     }
 
-    // ====== SAVE & LOAD TEMPLATE ======
-    function saveAsTemplate() {
+    // ====== DOWNLOAD TEMPLATE ======
+    function downloadTemplate() {
       // Collect current form data
       const data = {
         fromName: document.getElementById('fromName').value,
@@ -596,44 +570,54 @@
         items: items,
         logo: companyLogoDataUrl
       };
-
-      // Save to localStorage
-      localStorage.setItem('invoiceTemplate', JSON.stringify(data));
-      alert('Template saved successfully!');
+      const jsonStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "invoiceTemplate.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      alert("Template downloaded successfully!");
     }
 
-    function loadTemplate() {
-      const saved = localStorage.getItem('invoiceTemplate');
-      if (!saved) {
-        alert('No template found in localStorage!');
-        return;
-      }
-      // Parse and set data back to form
-      const data = JSON.parse(saved);
+    // ====== UPLOAD TEMPLATE ======
+    function uploadTemplate() {
+      document.getElementById('templateFileInput').click();
+    }
 
-      document.getElementById('fromName').value = data.fromName || '';
-      document.getElementById('fromAddress').value = data.fromAddress || '';
-      document.getElementById('invoiceNumber').value = data.invoiceNumber || '';
-      document.getElementById('invoiceDate').value = data.invoiceDate || '';
-      document.getElementById('billTo').value = data.billTo || '';
-      document.getElementById('shipTo').value = data.shipTo || '';
-      document.getElementById('dueDate').value = data.dueDate || '';
-      document.getElementById('paymentTerms').value = data.paymentTerms || '';
-      document.getElementById('discount').value = data.discount || 0;
-      document.getElementById('shipping').value = data.shipping || 0;
-      document.getElementById('amountPaid').value = data.amountPaid || 0;
-      document.getElementById('notes').value = data.notes || '';
-      document.getElementById('terms').value = data.terms || '';
-
-      // Load items and logo
-      items = data.items || [];
-      companyLogoDataUrl = data.logo || '';
-
-      // Re-render items & preview
-      renderItemsForm();
-      updatePreview();
-
-      alert('Template loaded successfully!');
+    function handleTemplateFile(files) {
+      if (files.length === 0) return;
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          // Populate the fields with data from the uploaded file
+          document.getElementById('fromName').value = data.fromName || '';
+          document.getElementById('fromAddress').value = data.fromAddress || '';
+          document.getElementById('invoiceNumber').value = data.invoiceNumber || '';
+          document.getElementById('invoiceDate').value = data.invoiceDate || '';
+          document.getElementById('billTo').value = data.billTo || '';
+          document.getElementById('shipTo').value = data.shipTo || '';
+          document.getElementById('dueDate').value = data.dueDate || '';
+          document.getElementById('paymentTerms').value = data.paymentTerms || '';
+          document.getElementById('discount').value = data.discount || 0;
+          document.getElementById('shipping').value = data.shipping || 0;
+          document.getElementById('amountPaid').value = data.amountPaid || 0;
+          document.getElementById('notes').value = data.notes || '';
+          document.getElementById('terms').value = data.terms || '';
+          // Load items and logo
+          items = data.items || [];
+          companyLogoDataUrl = data.logo || '';
+          renderItemsForm();
+          updatePreview();
+          alert("Template loaded successfully!");
+        } catch (error) {
+          alert("Error loading template: " + error);
+        }
+      };
+      reader.readAsText(file);
     }
   </script>
 </body>
